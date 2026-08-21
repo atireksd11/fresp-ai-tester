@@ -1,0 +1,409 @@
+/* KroniQ-adjacent: light canvas, Inter, Instrument Serif, Apple blue.
+   Self-contained so file:// does not depend on Tailwind CDN. */
+
+:root {
+    --fr-bg: #f3f4f9;
+    --fr-surface: #ffffff;
+    --fr-text: #09090b;
+    --fr-muted: #71717a;
+    --fr-line: #e4e4e7;
+    --fr-accent: #0071e3;
+    --fr-fail: #dc2626;
+    --fr-pass: #16a34a;
+    --fr-radius: 10px;
+    --fr-ease: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    min-height: 100%;
+}
+
+body.fr {
+    background-color: var(--fr-bg);
+    background-image:
+        radial-gradient(ellipse 80% 50% at 10% -10%, rgba(0, 113, 227, 0.16), transparent 55%),
+        radial-gradient(ellipse 60% 40% at 100% 0%, rgba(148, 163, 184, 0.22), transparent 50%);
+    color: var(--fr-text);
+    font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+    font-size: 15px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+}
+
+body.fr::before {
+    content: "";
+    pointer-events: none;
+    position: fixed;
+    inset: 0;
+    opacity: 0.35;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.45'/%3E%3C/svg%3E");
+    z-index: 0;
+}
+
+.fr-top {
+    position: sticky;
+    top: 16px;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    width: min(920px, calc(100% - 32px));
+    margin: 0 auto;
+    padding: 7px 10px 7px 14px;
+    border-radius: 999px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.78), rgba(255, 255, 255, 0.42));
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.95) inset, 0 18px 40px -20px rgba(0, 0, 0, 0.16);
+    backdrop-filter: blur(24px) saturate(1.5);
+}
+
+.fr-brand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    color: inherit;
+    text-decoration: none;
+}
+
+.fr-logo {
+    display: block;
+    width: 28px;
+    height: 28px;
+    flex-shrink: 0;
+    border: 0;
+    border-radius: 7px;
+    object-fit: contain;
+    object-position: center;
+    background: transparent;
+}
+
+.fr-mark {
+    display: block;
+    margin: 0;
+    font-family: "Instrument Serif", Georgia, serif;
+    font-size: 18px;
+    font-weight: 400;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    white-space: nowrap;
+}
+
+.fr-nav {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 2px;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+
+.fr-nav::-webkit-scrollbar {
+    display: none;
+}
+
+.fr-nav a {
+    color: var(--fr-muted);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 8px 14px;
+    border-radius: 999px;
+    white-space: nowrap;
+    transition: background 180ms var(--fr-ease), color 180ms var(--fr-ease);
+}
+
+.fr-nav a:hover {
+    color: var(--fr-text);
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.fr-nav a.is-on {
+    color: #fff;
+    background: #09090b;
+    box-shadow: none;
+}
+
+.fr-page {
+    position: relative;
+    z-index: 1;
+    max-width: 72rem;
+    margin: 0 auto;
+    padding: 32px 40px 96px;
+    animation: fr-in 520ms var(--fr-ease) both;
+}
+
+@keyframes fr-in {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+.fr-kicker {
+    margin: 0 0 12px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--fr-accent);
+}
+
+.fr-display {
+    margin: 0 0 12px;
+    font-family: "Instrument Serif", Georgia, serif;
+    font-size: clamp(40px, 6vw, 64px);
+    font-weight: 400;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+}
+
+.fr-lede {
+    margin: 0 0 40px;
+    max-width: 36rem;
+    color: var(--fr-muted);
+    font-size: 17px;
+}
+
+.fr-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 36px;
+}
+
+.fr-stat {
+    background: var(--fr-surface);
+    border: 1px solid var(--fr-line);
+    border-radius: 20px;
+    padding: 20px 22px;
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.9) inset, 0 12px 32px -20px rgba(0, 0, 0, 0.12);
+}
+
+.fr-stat b {
+    display: block;
+    font-family: "Instrument Serif", Georgia, serif;
+    font-size: 36px;
+    font-weight: 400;
+    letter-spacing: -0.03em;
+}
+
+.fr-stat span {
+    color: var(--fr-muted);
+    font-size: 12px;
+}
+
+.fr-card {
+    background: var(--fr-surface);
+    border: 1px solid var(--fr-line);
+    border-radius: 20px;
+    padding: 24px;
+    margin: 0 0 20px;
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.9) inset, 0 12px 32px -20px rgba(0, 0, 0, 0.12);
+}
+
+.fr-card h2 {
+    margin: 0 0 8px;
+    font-family: "Instrument Serif", Georgia, serif;
+    font-size: 28px;
+    font-weight: 400;
+    letter-spacing: -0.03em;
+}
+
+.fr-card h3 {
+    margin: 20px 0 8px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--fr-muted);
+}
+
+.fr-muted {
+    color: var(--fr-muted);
+    font-size: 14px;
+}
+
+.fr-pill {
+    display: inline-block;
+    margin-left: 8px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    vertical-align: middle;
+}
+
+.fr-pill.fail {
+    color: var(--fr-fail);
+    background: #fee2e2;
+}
+
+.fr-pill.pass {
+    color: var(--fr-pass);
+    background: #dcfce7;
+}
+
+.fr-issue {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    padding: 16px 0;
+    border-top: 1px solid var(--fr-line);
+}
+
+.fr-issue:first-of-type {
+    border-top: 0;
+}
+
+.fr-code {
+    margin: 0;
+    padding: 12px 14px;
+    background: #f4f4f5;
+    border-radius: 8px;
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+    font-size: 12px;
+    white-space: pre-wrap;
+}
+
+.fr-shots {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.fr-shots figure {
+    margin: 0;
+}
+
+.fr-shots figcaption,
+.fr-shots figcaption {
+    margin-top: 6px;
+    font-size: 12px;
+    color: var(--fr-muted);
+}
+
+img {
+    display: block;
+    width: 100%;
+    border-radius: 10px;
+    border: 1px solid var(--fr-line);
+}
+
+img.fr-logo {
+    display: block;
+    width: 28px;
+    height: 28px;
+    flex-shrink: 0;
+    border: 0;
+    border-radius: 7px;
+    object-fit: contain;
+    object-position: center;
+    background: transparent;
+}
+
+.fr-cta {
+    display: inline-flex;
+    align-items: center;    
+    margin: 8px 12px 28px 0;
+    padding: 10px 16px;
+    background: var(--fr-accent);
+    color: #fff;
+    text-decoration: none;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+    border: 0;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.fr-cta:hover {
+    filter: brightness(1.05);
+}
+
+.fr-ghost {
+    background: transparent;
+    color: var(--fr-muted);
+    border: 1px solid var(--fr-line);
+    padding: 8px 12px;
+    border-radius: 999px;
+    font-size: 13px;
+    cursor: pointer;
+    font-family: inherit;
+    margin-bottom: 12px;
+}
+
+.fr-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.fr-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--fr-line);
+    font-size: 14px;
+}
+
+.fr-step-num {
+    margin: 0 0 6px;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--fr-accent);
+}
+
+dialog {
+    border: 1px solid var(--fr-line);
+    border-radius: 14px;
+    background: var(--fr-surface);
+    color: var(--fr-text);
+    padding: 20px;
+    max-width: min(720px, 92vw);
+}
+
+dialog .fr-code {
+    max-height: 60vh;
+    overflow: auto;
+}
+
+@media (max-width: 800px) {
+    .fr-page {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+
+    .fr-top {
+        width: calc(100% - 24px);
+        padding: 6px 8px 6px 14px;
+    }
+
+    .fr-nav a {
+        padding: 6px 10px;
+        font-size: 12px;
+    }
+
+    .fr-stats,
+    .fr-issue,
+    .fr-shots {
+        grid-template-columns: 1fr;
+    }
+}

@@ -4,7 +4,10 @@
     "type": "module",
     "description": "Local CLI frontend auditor",
     "scripts": {
-        "log": "tsx src/logger/run.ts"
+        "log": "tsx src/logger/run.ts",
+        "report": "tsx src/logger/preview.ts",
+        "apply": "tsx src/logger/apply.ts",
+        "serve": "tsx src/apply/listen.ts"
     },
     "bin": {
         "fresp": "bin/fresp.mjs"

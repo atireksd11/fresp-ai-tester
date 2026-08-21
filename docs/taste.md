@@ -96,3 +96,18 @@ After facts + taste, pick one:
 - Ready to ship (rare; must have facts clean and vibe matching the product)
 
 Never say Play Store ready if overflow failed or the screenshot is a blank page.
+
+
+## Visual fails (always call these)
+
+- No single obvious primary button, or a shop CTA (Buy now) on a club/school/portfolio
+- Type too small or too gray to read on a projector (hackathon goal)
+- Page looks empty: huge leftover whitespace, one skinny column, no sections
+- Page looks noisy: more than two fonts, random accent colors, competing banners
+- Hero slogan that could be any company (Inspired / Empower / Solutions / OS for X)
+- Cards in a row of three with generic words (Fast / Secure / Easy)
+- Debug or meta copy visible ("fake site", "lorem", "coming soon" as the only content)
+
+When learnings JSON + a reference screenshot are present, say what the reference does
+that this page does not (nav labels, section order, CTA words, type size). Steal that,
+do not invent a new aesthetic.
