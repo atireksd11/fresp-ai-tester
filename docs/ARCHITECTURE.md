@@ -13,11 +13,12 @@ Fresp is a local CLI frontend auditor
 - `config` - heat sheet (URLs / paths)
 - `bin` - npm command `fresp`
 
-## Run loop
+## Run loop (v0.1)
 
-1. Driver opens the page.
-2. Vision measures and screenshots.
-3. AI grades. State and logger save.
+1. Driver opens the page in Chrome.
+2. Vision takes a PNG and measures overflow on the DOM.
+3. State and logger save. Report writes HTML.
+4. AI taste is not wired yet (see VISION.md).
 
 ## Facts vs taste
 

@@ -1,31 +1,67 @@
 # Fresp
 
-A local CLI that opens your site in real Chrome, checks layout facts on the live page, and writes an HTML report on your disk. No cloud dashboard.
+[![npm](https://img.shields.io/npm/v/fresp-ai-tester?color=cb3837)](https://www.npmjs.com/package/fresp-ai-tester)
+[![GitHub](https://img.shields.io/badge/github-atireksd11%2Ffresp--ai-tester-181717)](https://github.com/atireksd11/fresp-ai-tester)
 
-![Fresp demo home page](fixtures/baselines/home.png)
+**A local CLI that opens real Chrome, measures layout bugs on the live page, and drops an HTML report on disk.**
 
-**Try it**
+No cloud. No login. You run a command; Fresp writes files.
+
+---
+
+<table>
+  <tr>
+    <td align="center" width="50%">
+      <img src="fixtures/baselines/home.png" alt="Home page with a 4000px red bar causing overflow" />
+      <br />
+      <strong>Home — FAIL</strong><br />
+      <sub>4000px bar → horizontal overflow</sub>
+    </td>
+    <td align="center" width="50%">
+      <img src="fixtures/baselines/about.png" alt="About page with no overflow" />
+      <br />
+      <strong>About — PASS</strong><br />
+      <sub>Normal width → ok</sub>
+    </td>
+  </tr>
+</table>
+
+Those PNGs are what Playwright captured. The fail/pass is **not** from looking at the pixels. Chrome is asked: is `document.documentElement.scrollWidth` greater than `clientWidth`?
+
+---
+
+## Try it (2 commands)
+
+Package name is **`fresp-ai-tester`**, not `fresp`. `npx fresp` will 404.
 
 ```bash
-npx fresp-ai-tester@0.1.4
 npx playwright install chromium
+npx fresp-ai-tester@0.1.4
 ```
 
-The package name is `fresp-ai-tester` (not `fresp`). **v0.1.4** is the first npx build that works from another folder. Demo: **home** fails horizontal overflow, **about** passes.
+Node 20+. First run downloads Chromium. You should see Chrome open **home** (~3s), then **about**, and a log like:
 
-## Features (v0.1)
+```text
+overflow: true
+overflow
+overflow: false
+ok
+```
 
-- Playwright Chromium, full-page screenshots
-- Overflow check from the DOM (`scrollWidth` vs `clientWidth`), not from guessing at the PNG
-- JSON results, a timestamp log, and an HTML report
-- Modular layout: `core`, `drivers`, `vision`, `state`, `logger`, `report`
-- Demo pages included (broken home, clean about)
+JSON written by a local clone looks like this:
 
-Not in v0.1: AI taste, clip/overlap/contrast, a VS Code extension.
+```json
+[
+  { "url": "http://localhost:3000/", "passed": false, "notes": "overflow", "shot": "home.png" },
+  { "url": "http://localhost:3000/about", "passed": true, "notes": "ok", "shot": "about.png" }
+]
+```
 
-## Run from this repo
+From `npx` (another folder), those files land in the npm cache. From this repo they land in `logs/`.
 
-Needs Node 20+.
+---
+
+## Run from source
 
 ```bash
 git clone https://github.com/atireksd11/fresp-ai-tester.git
@@ -35,21 +71,67 @@ npx playwright install chromium
 npm run log
 ```
 
-Then open `logs/report.html` and `logs/last-run.json`.
+Then open:
 
-Inside this repo you can also run `npx fresp`.
+- `logs/report.html` — human report  
+- `logs/last-run.json` — machine result  
+- `logs/run.txt` — timestamps  
+- `fixtures/baselines/*.png` — shots  
 
-## How it works
+In this repo you can also run `npx fresp`.
 
-The driver opens the page. Vision asks Chrome whether the document is wider than the window, then saves a PNG. State writes a scorecard per URL. The report is a local HTML file. Facts still run if a later AI key is missing. Product taste lives in `docs/taste.md` and is not a vector database.
+---
+
+## What v0.1 actually does
+
+| Piece | What you get |
+| --- | --- |
+| Driver | Playwright Chromium, `file://` demo pages |
+| Vision | Full-page screenshot + overflow fact |
+| State | One scorecard per URL |
+| Logger | Terminal + `logs/run.txt` (creates `logs/` if needed) |
+| Report | `logs/report.html` |
+| Demo | Broken home, clean about |
+
+**Not in v0.1:** AI taste, clipped text / overlap / contrast, VS Code extension.
+
+---
+
+## How it is split
+
+```mermaid
+flowchart LR
+  A[heatSheet paths] --> B[core]
+  B --> C[driver / Chrome]
+  C --> D[vision screenshot]
+  C --> E[vision overflow]
+  E --> F[state JSON]
+  D --> F
+  F --> G[report HTML]
+  B --> H[logger]
+```
+
+Core never talks to Chrome itself. Vision never writes the report. That split is on purpose so facts can stay working when a later AI key is missing.
+
+Taste (later) is `docs/taste.md` plus a vision model — not a vector database.
+
+---
 
 ## Docs
 
-- [Product vision](docs/VISION.md)
-- [Engineering](docs/ENGINEERING.md)
-- [Taste bible](docs/taste.md)
-- [Architecture](docs/ARCHITECTURE.md)
+| Doc | What it is |
+| --- | --- |
+| [VISION.md](docs/VISION.md) | Product: facts first, then AI taste |
+| [ENGINEERING.md](docs/ENGINEERING.md) | How the AI path, caches, and CLI should work |
+| [taste.md](docs/taste.md) | Judgement bible (school vs portfolio vs slop) |
+| [ARCHITECTURE.md](docs/ARCHITECTURE.md) | Rooms and folders |
+| [DAY-01.md](docs/journal/DAY-01.md) | What shipped on day one |
 
-## License / credits
+---
+
+## Links
+
+- npm: [fresp-ai-tester](https://www.npmjs.com/package/fresp-ai-tester)  
+- Source: [atireksd11/fresp-ai-tester](https://github.com/atireksd11/fresp-ai-tester)
 
 Playwright. Built in the open for Hack Club Stardance.
