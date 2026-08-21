@@ -7,28 +7,61 @@
 
 You run a command. Fresp writes files. Open the report in the browser.
 
-This **git repo** is day 2 (taste, plan, apply, multi-page report). The npm tarball **`fresp-ai-tester@0.1.4`** is still the day-1 overflow demo. Clone this if you want what the docs describe.
+**npx `fresp-ai-tester@0.2.0`** is this day-2 CLI (taste, plan, apply, multi-page report).
 
 ---
 
 <table>
   <tr>
     <td align="center" width="50%">
-      <img src="fixtures/baselines/home.png" alt="Demo home screenshot from Playwright" />
+      <img src="docs/screens/overview.png" alt="Fresp report Overview page" />
       <br />
-      <strong>Your pages</strong><br />
-      <sub>Playwright PNGs. Fail/pass for overflow comes from the DOM, not from looking at pixels.</sub>
+      <strong>Overview</strong><br />
+      <sub>Briefing after a run — facts, taste count, jump to the plan.</sub>
     </td>
     <td align="center" width="50%">
-      <img src="fixtures/baselines/about.png" alt="Demo about screenshot from Playwright" />
+      <img src="docs/screens/plan.png" alt="Fresp report Plan page" />
       <br />
-      <strong>Examples</strong><br />
-      <sub>Finder (or pinned URLs) → steal sheet → then judge yours.</sub>
+      <strong>Plan</strong><br />
+      <sub>Full CSS + HTML per route. Apply writes the demo (with a backup).</sub>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" colspan="2">
+      <img src="docs/screens/compare.png" alt="Fresp report Compare page" />
+      <br />
+      <strong>Compare</strong><br />
+      <sub>Your home vs example homepages the finder stole from.</sub>
     </td>
   </tr>
 </table>
 
+Chrome shots of **your** pages still land in `fixtures/baselines/`. Fail/pass for overflow comes from the DOM, not from looking at those pixels.
+
 Overflow fact: Chrome is asked whether `document.documentElement.scrollWidth` is greater than `clientWidth`. Clip / overlap / contrast are **not** measured yet.
+
+---
+
+## Try it (`npx`)
+
+Package name is **`fresp-ai-tester`**, not `fresp`. `npx fresp` will 404.
+
+```bash
+npx playwright install chromium
+npx fresp-ai-tester@0.2.0
+```
+
+Optional, same terminal, if you want taste + plan:
+
+```bash
+# Windows PowerShell
+$env:FRESP_API_KEY="sk-or-..."
+
+# mac / linux
+export FRESP_API_KEY=sk-or-...
+```
+
+Chrome opens the demo club pages, then (if the key is set) examples + taste + plan. Leave the process running and open **http://127.0.0.1:7373/logs/report/index.html**.
 
 ---
 
@@ -62,19 +95,6 @@ Leave that terminal open. Open:
 Apply is **demo only**. It does not push into some other project.
 
 Ctrl+C the old 7373 process before starting another `log` / `report`.
-
----
-
-## npm 0.1.4 (older)
-
-Package name is **`fresp-ai-tester`**, not `fresp`.
-
-```bash
-npx playwright install chromium
-npx fresp-ai-tester@0.1.4
-```
-
-That build is overflow + two pages + a single HTML file. Use the clone for day 2.
 
 ---
 

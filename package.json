@@ -1,6 +1,6 @@
 {
     "name": "fresp-ai-tester",
-    "version": "0.1.4",
+    "version": "0.2.0",
     "type": "module",
     "description": "Local CLI frontend auditor",
     "scripts": {
@@ -11,6 +11,10 @@
     },
     "bin": {
         "fresp": "bin/fresp.mjs"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/atireksd11/fresp-ai-tester.git"
     },
     "devDependencies": {
         "@types/node": "^26.2.0",

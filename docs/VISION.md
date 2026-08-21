@@ -18,7 +18,7 @@ First customer is us: a small demo club site in this repo.
 
 1. Tiny config (`src/config/heatSheet.ts`): base url, paths, product, goal, optional example URLs.
 
-2. Command: `npm run log` in this repo. (Published npm `0.1.4` is still the older overflow-only CLI.)
+2. Command: `npm run log` in this repo, or `npx fresp-ai-tester@0.2.0`.
 
 3. Core reads the heat sheet and orchestrates. Core does not open Chrome itself.
 

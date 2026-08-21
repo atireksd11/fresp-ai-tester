@@ -24,7 +24,7 @@ that the vision doc used to say “later”.
 - `npm run report` — rebuild HTML from last JSON, keep 7373
 - `npm run apply` — write last plan onto the demo
 
-Published npm is still `0.1.4` (older). This git is ahead.
+Published npm is `0.2.0` (this git).
 
 ## Proof
 
@@ -37,4 +37,4 @@ Taste and plan ran when the key was present. Report is
 - Clip / overlap / contrast facts
 - Planner as spec + one file per write (one-shot JSON is still meh)
 - Apply to a real user repo
-- GIFs on the README (screenshots for now)
+- GIFs on the README (report PNGs are there; motion later)

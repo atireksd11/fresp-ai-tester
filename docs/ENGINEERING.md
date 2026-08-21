@@ -4,7 +4,7 @@ How it works **now**, and what is still a later upgrade.
 
 Day 2 in this repo: facts (overflow) + screenshots + taste + plan + apply-to-demo + `logs/report/` on port 7373.
 
-npm `fresp-ai-tester@0.1.4` is behind this git. Use `npm run log` from a clone.
+npm `fresp-ai-tester@0.2.0` matches this git: facts (overflow) + screenshots + taste + plan + apply-to-demo + `logs/report/` on port 7373.
 
 ## Layers
 
