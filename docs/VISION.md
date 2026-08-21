@@ -2,72 +2,71 @@
 
 ## What it is
 
-Fresp is a tool you run on your own computer. It opens your website in real Chrome, takes full page screenshots, checks the live page for layout problems, and later uses an AI to judge the design based on some criteria. When it is done, you get files in the project folder: pictures, a JSON result, a log, and an HTML report you can open in the browser.
+Fresp is a tool you run on your own computer. It opens your website in real Chrome, takes full page screenshots, checks the live page for layout problems, and uses an AI to judge the design against a written bible (`docs/taste.md`). When it is done, you get files in the project folder: pictures, JSON, a log, and an HTML report you click through.
 
-It is not a website you log into, it is not a VS Code extension, and it is not a Github Bug finder. It is a local CLI: you type a command, it does the work, it leaves files on disk.
+It is not a website you log into, it is not a VS Code extension, and it is not a Github bug finder. It is a local CLI: you type a command, it does the work, it leaves files on disk.
 
-Independent means we do not depend on Percy, CHromatic, or Applitools. Your screenshots and reports stay on your machine.
+Independent means we do not depend on Percy, Chromatic, or Applitools. Your screenshots and reports stay on your machine.
 
-## Why is it for
+## Who it is for
 
-Someone who shipped a frontend (including vibe coded sites) and doesn't know if its good for launch or not. Pixel only tools pass an ugly website that never changes. Fresp is supposed to critically analyze your website and confidently give you suggestions and ideas in the HTML report.
+Someone who shipped a frontend (including vibe coded sites) and does not know if it is good for launch. Pixel-only tools pass an ugly website that never changes. Fresp is supposed to measure what it can, roast the rest, and hand you a rebuild plan.
 
-First customer is us: a small demo site in this repo, then a real site we own, when we are ready.
+First customer is us: a small demo club site in this repo.
 
-## How a full run will work
+## How a full run works
 
-1. You have a tiny config: base url (localhost or https) and a list of paths (`/`, `/about`, ...). Later we can also read a sitemap. Optional: a start command if we need to boot the dev server.
+1. Tiny config (`src/config/heatSheet.ts`): base url, paths, product, goal, optional example URLs.
 
-2. You run the command ( today that is `npm run log`; we will rename it to something like `npm run fresp`).
+2. Command: `npm run log` in this repo. (Published npm `0.1.4` is still the older overflow-only CLI.)
 
-3. Core needs the config and goes path by path. Core does not open Chrome itself. It only calls the other modules.
+3. Core reads the heat sheet and orchestrates. Core does not open Chrome itself.
 
-4. Driver (Playwright) opens Chome, goes to that page, waits until it is painted.
+4. Driver opens one Chromium for the whole run. Each URL gets a page, then that page closes.
 
 5. Vision, before any AI:
-    - full page screeenshots, saved as a PNG
-    - facts from the live DOM: horizontal overflow, overlapping elements, clipped text, weak contrast, messy font/colors
+    - full page PNG (+ up to 4 visible `<section>` crops)
+    - facts from the live DOM: horizontal overflow today
+      (`scrollWidth > clientWidth`)
 
-    These are numbers and yes/no. If the AI is down, facts still work.
+    These are yes/no. If the AI is down, facts still work.
 
-6. Vision, after facts (not built yet): send the screenshots plus the fact list to a vision model with a fixed checklist: hierarchy, consistency, AI slop patterns, does this look like the right product. The model writes notes and scores. We do not let it be the only brain.
+6. Vision, taste: screenshots + facts + taste.md + learnings from example sites. Structured JSON. Empty issues is allowed if the page already fits.
 
-7. State stores one result per page: url, passed, notes, path to the screenshot. All pages in the run get written to `logs/last-run.json`.
+7. Finder (if you did not pin URLs): 3 live https homepages, steal sheet, then judge yours.
 
-8.Logger writes timestamped lines to the terminal and `logs/run.txt`.
+8. State: one result per page in `logs/last-run.json`. Plan in `logs/last-plan.json`.
 
-9. Report writes `logs/report.html`: each page with notes and the screenshot. You open that file in Chrome. That is the "app UI".
+9. Logger: timestamps to the terminal and `logs/run.txt`.
 
-10. Process can later exit 1 if anything failed, so CI can use it. Not required on day one.
+10. Report: `logs/report/` — Overview, Plan, Pages, Playbook, Examples, Compare. Open
+    `http://127.0.0.1:7373/logs/report/index.html` (the process keeps 7373 up).
 
-
-
+11. Apply (optional): POST `/apply` or `npm run apply`. Backs up demo HTML/CSS, writes the plan files, opens the demo.
 
 ## What "passed" means
 
-A page fails if facts find a real layout bug (example: home has a 4000px-wide bar, overflow is true.) Later it can also fail if the AI score is below a threshold we choose. We will write that threshold down so it is not random vibes.
+A page fails if facts find a real layout bug. Taste issues are shown even when overflow passed. We do not fail the run only because the model nitpicked punctuation.
 
-## What we already have (DAY 1)
+## What we have (day 2)
 
-- Folders split by job: core, drivers, vision, state, logger, report, types, config
-- Demo pages: home (broken on purpose), about (fine)
-- Playwright opens those files, waits, screenshots into `fixtures/baselines/`
-- Overflow check: home fails, about passes 
-- JSON + HTML report + text log
+- Four demo routes, heat sheet sitemap
+- One shared Chrome
+- Overflow fact
+- Taste + steal + learnings
+- Finder cap 3
+- Rebuild plan (full files, not sketches)
+- Apply to demo with backup
+- Report site + local server
 
+## What we do not have yet
 
-What we do not have yet: overlap/clip/contrast/fonts, AI taste, photos inside the HTML report, a real local server, sitemap, one shared browser instead of open/close per page.
-
+Clip, overlap, contrast as facts. Planner still one JSON dump (not one write per file). Apply does not push to your real app repo.
 
 ## What we will not build in this sprint
 
-No cloud dashboard, no accounts, no VS Code extension, no "scan any github repo for all bugs" no magic "understands every framework". Pages come from a list or a sitemap we can actually parse.
-
+No cloud dashboard, no accounts, no VS Code extension, no “scan any github repo”, no vector DB / RAG.
 
 ## Why this is the product
 
-Playwright screenshot compare = did it change. Lighthouse = a11y-ish scores. Fresp = measure the page, then (later) tase. Local, modular, demoable: break CSS, run, see fail on the report.
-
-## Important Message
-
-There is a high possibility that we change the product vision, a lot, drastically, as we move on and get better ideas. It could possibly become much more advanced by time. For DAY 1 this is our Vision.
+Playwright screenshot compare = did it change. Lighthouse = scores. Fresp = measure the page, then taste, then a plan you can apply on the demo. Local, modular: break CSS, run, see fail on the report.

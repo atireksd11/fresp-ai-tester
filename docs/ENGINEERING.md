@@ -1,122 +1,83 @@
-# Fresp engineering vision
+# Fresp engineering
 
-This is how Fresp should work when it is finished.
-Day 1 / v0.1.4 has facts + screenshots + HTML + `npx fresp-ai-tester@0.1.4`.
-The AI path is not coded yet. Logger creates the `logs/` folder if npm did not ship it.
+How it works **now**, and what is still a later upgrade.
+
+Day 2 in this repo: facts (overflow) + screenshots + taste + plan + apply-to-demo + `logs/report/` on port 7373.
+
+npm `fresp-ai-tester@0.1.4` is behind this git. Use `npm run log` from a clone.
 
 ## Layers
 
-1. Config — what to open, what the product is, what the goal is, optional example URLs.
-2. Driver — one Chrome, many pages, wait until paint, hand the page to vision.
-3. Facts — code in Chrome (overflow, later clip, overlap, contrast, font/color counts). No API.
-4. Capture — full-page PNG on disk.
-5. Taste — vision model + docs/taste.md + facts JSON + screenshots.
-6. State — one result object per page, then JSON for the whole run.
-7. Report — HTML poster with facts, AI notes, images.
-8. Logger — timestamps for every step, including skipped AI and cache hits.
+1. Config — paths, product, goal, optional example URLs. Secrets in `.env` (gitignored).
+2. Driver — one Chrome, many pages, `file://` demo or https examples.
+3. Facts — `src/vision/facts.ts`. Overflow only. Clip / overlap / contrast next.
+4. Capture — full-page PNG. Section shots skip hidden nodes and 4s timeouts so one bad site cannot freeze the run.
+5. Taste — vision model + `docs/taste.md` + facts JSON + screenshots. Skip if no key.
+6. Finder — OpenRouter search, cap 3, `logs/examples.json`.
+7. Learnings — example steal notes written before yours is judged.
+8. Plan — one extra model call, full CSS + full HTML per route. Skip if no key.
+9. State — `logs/last-run.json`, `logs/last-plan.json`.
+10. Report — HTML pages + `src/report/report.css` (no Tailwind CDN; `file://` still paints).
+11. Apply — backup `fixtures/demo` → `logs/backups/<time>/`, write files, open demo.
+12. Logger — timestamps, including `ai skipped`.
 
-If the API key is missing or the model is down, layers 1-4 and 6-8 still run.
-Taste notes say "ai skipped". Facts still fail the page.
+If the API key is missing, layers 1–4 and 9–12 still run.
 
-## Config shape (later)
+## Driver
 
-heatSheet gets:
+Launch Chromium once in `runAudit`. `newPage` per URL. `page.close()`. `browser.close()` in `finally`.
 
-- baseUrl, paths (we have this)
-- product (school | portfolio | saas | hackathon | other)
-- goal (hackathon | web | play-store | class)
-- exampleUrls (0-3, optional)
-- startCommand (optional)
+Demo map in `openLane`: `/` → `home.html`, `/about`, `/events`, `/join`. Extra html in `fixtures/demo` is not in the heat sheet until you add the path.
 
-Secrets never go in git. API key lives in .env (already gitignored).
-
-## Driver (later upgrade)
-
-Today we launch and close Chrome per page. Finished system: launch once,
-new tab per path, close at the end. Faster, cheaper, less flicker.
-
-Still wait for network idle / fonts so screenshots are not blank.
-
-file:// for the demo. http://localhost for real apps. startCommand if we must boot the app.
+Examples: `openRemote`, shot name `ex-<timestamp>.png`. Those PNGs are gitignored so the repo does not eat every run.
 
 ## Facts
 
-Each check is a function in vision/facts.ts. Same idea as overflow:
-page.evaluate, ask the DOM, return yes/no or a small list.
+Each check is a function: `page.evaluate`, ask the DOM, return yes/no.
 
-Facts run on EVERY page before AI. They are the floor.
+Facts run on every page before AI. They are the floor.
+
+Ban: `overflow-x: hidden` as the overflow fix. Name the wide child.
 
 ## Taste / AI
 
 Not RAG. Not a vector DB. Not a graph DB.
 
-Inputs to one model call (per page, or per run — see cost):
+Per page (examples vs yours use different prompts in `src/vision/prompts.ts`):
 
-- System text: docs/taste.md (stable)
-- User text: product, goal, this page URL, facts JSON
-- User images: this page PNG; if exampleUrls exist, those PNGs too (capped)
+- System: short rules + full `docs/taste.md`
+- User: product, goal, URL, facts JSON
+- Images: this page PNG; yours also gets learnings JSON + first example PNG
 
-Output must be structured JSON we define, for example:
-
-- assumedProduct, assumedGoal
-- factSummary (copy our facts, do not contradict them)
-- issues[]: severity, title, why it matters for THIS product, how to fix
-- slopHits[] (names from the slop list if visible)
-- readyFor: not-ready | hackathon | web-with-fixes | ship
-- confidence (low if screenshot is blank or facts conflict)
+Output is typed JSON (`src/types/taste.ts`). Issues may be `[]`.
 
 The model must not invent overflow if facts say false.
-The model must not say ship if facts failed.
 
-### Prompts
+Skip AI if there is no key. No local hash cache yet (that is still a cost upgrade). No prompt-cache headers yet.
 
-Keep prompts in src/vision/prompts.ts (or similar), not scattered.
-System prompt = short rules + full taste.md body.
+Retries are not fancy: if the call throws, that page’s taste is skipped.
 
-### Two caches (this is the cost plan)
+## Plan
 
-1. Provider prompt cache
-   OpenAI/Anthropic can cache a long stable system prompt.
-   taste.md changes rarely. Mark that block as cacheable.
-   Per-page we only pay for new facts + new image.
-   If the host does not support cache, still send the same system prompt;
-   some providers cache automatically.
+`src/vision/plan.ts`. `RebuildPlan` in `src/types/plan.ts`.
 
-2. Local result cache (our disk)
-   Folder like cache/taste/
-   Key = hash of (taste.md + product + goal + facts JSON + screenshot bytes)
-   If the key exists, do not call the API. Read JSON from disk.
-   Logger writes "taste cache hit".
-   Changing taste.md or the PNG invalidates that key.
-   gitignore cache/ so we do not commit paid results.
+Still one shot (big JSON). Quality is meh when the model is flash-lite. Later: spec call, then one file per write. Not tonight’s leftover.
 
-Also shrink images before upload (max width e.g. 1280). Full PNG on disk for the report;
-smaller copy for the API. Cuts image tokens.
-
-Skip AI entirely if the user sets FRESP_SKIP_AI=1 (offline demo).
-
-Retries: 2 retries on 429/500, then skip AI for that page, keep facts.
+Apply does **not** write a user’s real repo. Demo only.
 
 ## Report
 
-HTML still local. Each page: facts, readyFor, issue list, screenshot.
-Example-site screenshots in a small row if present.
-No login, no cloud.
+Open **http://127.0.0.1:7373/logs/report/index.html** after `npm run log` or `npm run report`.
+
+`npm run report` rebuilds HTML from last JSON (no Chrome, no API) and starts 7373 again.
 
 ## What we will not build in this sprint
 
-Vector database, graph database, LangChain, auto-Google of all school sites,
-VS Code writing files for you.
+Vector database, graph database, LangChain, unsupervised crawl, VS Code writing production files.
 
-Example sites = URLs the user typed. We screenshot those. That is enough "industry".
+## Next to code
 
-## Order to code this
-
-1. product + goal on heatSheet (no AI yet)
-2. Read taste.md from disk in TypeScript
-3. Resize + API client + structured JSON
-4. Prompt cache headers if the provider supports them
-5. Local hash cache
-6. Wire notes into report.html
-7. exampleUrls
-8. One shared browser
+1. Clip fact (same shape as overflow)
+2. Plant a clip bug in the demo
+3. Contrast, then overlap
+4. Split planner into spec + one write per file

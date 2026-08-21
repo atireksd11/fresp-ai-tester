@@ -3,117 +3,115 @@
 [![npm](https://img.shields.io/npm/v/fresp-ai-tester?color=cb3837)](https://www.npmjs.com/package/fresp-ai-tester)
 [![GitHub](https://img.shields.io/badge/github-atireksd11%2Ffresp--ai-tester-181717)](https://github.com/atireksd11/fresp-ai-tester)
 
-**A local CLI that opens real Chrome, measures layout bugs on the live page, and drops an HTML report on disk.**
+**Local CLI: real Chrome, layout facts from the DOM, then an AI taste pass and a rebuild plan. HTML report on disk. No cloud login.**
 
-No cloud. No login. You run a command; Fresp writes files.
+You run a command. Fresp writes files. Open the report in the browser.
+
+This **git repo** is day 2 (taste, plan, apply, multi-page report). The npm tarball **`fresp-ai-tester@0.1.4`** is still the day-1 overflow demo. Clone this if you want what the docs describe.
 
 ---
 
 <table>
   <tr>
     <td align="center" width="50%">
-      <img src="fixtures/baselines/home.png" alt="Home page with a 4000px red bar causing overflow" />
+      <img src="fixtures/baselines/home.png" alt="Demo home screenshot from Playwright" />
       <br />
-      <strong>Home — FAIL</strong><br />
-      <sub>4000px bar → horizontal overflow</sub>
+      <strong>Your pages</strong><br />
+      <sub>Playwright PNGs. Fail/pass for overflow comes from the DOM, not from looking at pixels.</sub>
     </td>
     <td align="center" width="50%">
-      <img src="fixtures/baselines/about.png" alt="About page with no overflow" />
+      <img src="fixtures/baselines/about.png" alt="Demo about screenshot from Playwright" />
       <br />
-      <strong>About — PASS</strong><br />
-      <sub>Normal width → ok</sub>
+      <strong>Examples</strong><br />
+      <sub>Finder (or pinned URLs) → steal sheet → then judge yours.</sub>
     </td>
   </tr>
 </table>
 
-Those PNGs are what Playwright captured. The fail/pass is **not** from looking at the pixels. Chrome is asked: is `document.documentElement.scrollWidth` greater than `clientWidth`?
+Overflow fact: Chrome is asked whether `document.documentElement.scrollWidth` is greater than `clientWidth`. Clip / overlap / contrast are **not** measured yet.
 
 ---
 
-## Try it (2 commands)
+## Run from this repo
 
-Package name is **`fresp-ai-tester`**, not `fresp`. `npx fresp` will 404.
-
-```bash
-npx playwright install chromium
-npx fresp-ai-tester@0.1.4
-```
-
-Node 20+. First run downloads Chromium. You should see Chrome open **home** (~3s), then **about**, and a log like:
-
-```text
-overflow: true
-overflow
-overflow: false
-ok
-```
-
-JSON written by a local clone looks like this:
-
-```json
-[
-  { "url": "http://localhost:3000/", "passed": false, "notes": "overflow", "shot": "home.png" },
-  { "url": "http://localhost:3000/about", "passed": true, "notes": "ok", "shot": "about.png" }
-]
-```
-
-From `npx` (another folder), those files land in the npm cache. From this repo they land in `logs/`.
-
----
-
-## Run from source
+Node 20+.
 
 ```bash
 git clone https://github.com/atireksd11/fresp-ai-tester.git
 cd fresp-ai-tester
 npm install
 npx playwright install chromium
+```
+
+Put `FRESP_API_KEY` in `.env` if you want taste + plan (OpenRouter by default). No key is fine: facts and screenshots still run.
+
+```bash
 npm run log
 ```
 
-Then open:
+Leave that terminal open. Open:
 
-- `logs/report.html` — human report  
-- `logs/last-run.json` — machine result  
-- `logs/run.txt` — timestamps  
-- `fixtures/baselines/*.png` — shots  
+**http://127.0.0.1:7373/logs/report/index.html**
 
-In this repo you can also run `npx fresp`.
-
----
-
-## What v0.1 actually does
-
-| Piece | What you get |
+| Command | What it does |
 | --- | --- |
-| Driver | Playwright Chromium, `file://` demo pages |
-| Vision | Full-page screenshot + overflow fact |
-| State | One scorecard per URL |
-| Logger | Terminal + `logs/run.txt` (creates `logs/` if needed) |
-| Report | `logs/report.html` |
-| Demo | Broken home, clean about |
+| `npm run log` | Full audit (Chrome + optional AI) then serve report + demo |
+| `npm run report` | Rebuild `logs/report/` from last JSON (no Chrome) and serve |
+| `npm run apply` | Backup `fixtures/demo`, write the last plan onto it, open demo |
 
-**Not in v0.1:** AI taste, clipped text / overlap / contrast, VS Code extension.
+Apply is **demo only**. It does not push into some other project.
+
+Ctrl+C the old 7373 process before starting another `log` / `report`.
 
 ---
 
-## How it is split
+## npm 0.1.4 (older)
+
+Package name is **`fresp-ai-tester`**, not `fresp`.
+
+```bash
+npx playwright install chromium
+npx fresp-ai-tester@0.1.4
+```
+
+That build is overflow + two pages + a single HTML file. Use the clone for day 2.
+
+---
+
+## What a day-2 run does
 
 ```mermaid
 flowchart LR
-  A[heatSheet paths] --> B[core]
-  B --> C[driver / Chrome]
-  C --> D[vision screenshot]
-  C --> E[vision overflow]
-  E --> F[state JSON]
-  D --> F
-  F --> G[report HTML]
-  B --> H[logger]
+  A[heatSheet] --> B[core]
+  B --> F[finder cap 3]
+  F --> C[driver / one Chrome]
+  B --> C
+  C --> D[screenshot]
+  C --> E[overflow fact]
+  D --> T[taste]
+  E --> T
+  T --> L[learnings]
+  L --> Y[judge yours]
+  Y --> P[rebuild plan]
+  P --> R[logs/report]
+  R --> S[7373]
 ```
 
-Core never talks to Chrome itself. Vision never writes the report. That split is on purpose so facts can stay working when a later AI key is missing.
+Core never talks to Chrome itself. Facts still work if the model is down.
 
-Taste (later) is `docs/taste.md` plus a vision model — not a vector database.
+| Piece | What you get |
+| --- | --- |
+| Driver | One Chromium, demo `file://` or https examples |
+| Facts | Overflow only |
+| Taste | Issues + steal notes (`docs/taste.md`) |
+| Plan | Full CSS + full HTML per route |
+| Apply | Writes `fixtures/demo` with a timestamped backup |
+| Report | Overview, Plan, Pages, Playbook, Examples, Compare |
+| Demo | `/` `/about` `/events` `/join` |
+
+**Not yet:** clip / overlap / contrast facts, VS Code extension, apply-to-your-real-repo.
+
+Taste is a vision model + a markdown bible. Not a vector database.
 
 ---
 
@@ -121,17 +119,20 @@ Taste (later) is `docs/taste.md` plus a vision model — not a vector database.
 
 | Doc | What it is |
 | --- | --- |
-| [VISION.md](docs/VISION.md) | Product: facts first, then AI taste |
-| [ENGINEERING.md](docs/ENGINEERING.md) | How the AI path, caches, and CLI should work |
-| [taste.md](docs/taste.md) | Judgement bible (school vs portfolio vs slop) |
-| [ARCHITECTURE.md](docs/ARCHITECTURE.md) | Rooms and folders |
-| [DAY-01.md](docs/journal/DAY-01.md) | What shipped on day one |
+| [VISION.md](docs/VISION.md) | Product |
+| [ARCHITECTURE.md](docs/ARCHITECTURE.md) | Rooms and the run loop |
+| [ENGINEERING.md](docs/ENGINEERING.md) | How the pieces are wired |
+| [taste.md](docs/taste.md) | Judgement bible |
+| [REPORT.md](docs/REPORT.md) | Report IA |
+| [PLAN-AGENT.md](docs/PLAN-AGENT.md) | Rebuild plan shape |
+| [FINDER.md](docs/FINDER.md) | Example search |
+| [DAY-01](docs/journal/DAY-01.md) / [DAY-02](docs/journal/DAY-02.md) | What shipped each day |
 
 ---
 
 ## Links
 
-- npm: [fresp-ai-tester](https://www.npmjs.com/package/fresp-ai-tester)  
+- npm: [fresp-ai-tester](https://www.npmjs.com/package/fresp-ai-tester)
 - Source: [atireksd11/fresp-ai-tester](https://github.com/atireksd11/fresp-ai-tester)
 
 Playwright. Built in the open for Hack Club Stardance.
