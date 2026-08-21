@@ -1,5 +1,5 @@
 import type { PageAudit } from "../types/audit.js";
-import { writeFileSync } from "node:fs";
+import { writeFileSync, mkdirSync } from "node:fs";
 import { writeReport } from "../report/report.js";
 
 let lastResults: PageAudit = {
@@ -21,6 +21,7 @@ export function getResult(): PageAudit {
 }
 
 export function writeRun(): void {
+  mkdirSync("logs", { recursive: true });
   writeFileSync("logs/last-run.json", JSON.stringify(allResults, null, 2));
   writeReport(allResults);
 }

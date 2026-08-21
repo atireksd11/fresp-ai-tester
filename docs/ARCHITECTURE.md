@@ -9,6 +9,9 @@ Fresp is a local CLI frontend auditor
 - `vision` - screenshots, layout measurements, then the ai scorecard. 
 - `state` - saves results as JSON.
 - `logger` - writes a dated diary of the run.
+- `report` - writes logs/report.html
+- `config` - heat sheet (URLs / paths)
+- `bin` - npm command `fresp`
 
 ## Run loop
 
@@ -35,6 +38,9 @@ src/vision
 src/state
 src/logger
 src/types
+src/report
+src/config
+bin
 tests
 fixtures/baselines
 docs
