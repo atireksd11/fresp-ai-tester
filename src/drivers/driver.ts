@@ -1,24 +1,46 @@
-import { chromium } from "playwright";
+import type { Browser } from "playwright";
 import { pathToFileURL } from "node:url";
 import { resolve } from "node:path";
 import { log } from "../logger/logger.js";
-import { capture } from "../vision/capture.js";
 import { hasOverflow } from "../vision/facts.js";
+import { capture, captureSections } from "../vision/capture.js";
 
-export async function openLane(path: string): Promise<boolean> {
-    let name = "home.html";
-    if (path === "/about") {
-        name = "about.html";
-    }
-    const fileUrl = pathToFileURL(resolve("fixtures/demo", name)).href;
-    log("opening " + fileUrl);
-    const browser = await chromium.launch({ headless: false});
-    const page = await browser.newPage();
-    await page.goto(fileUrl);
-    await capture(page, name.replace(".html", ".png"));
+export type LaneResult = {
+  overflow: boolean;
+  shot: string;
+  sections: string[];
+};
+
+async function snap(browser: Browser, url: string, shot: string, pageName: string): Promise<LaneResult> {
+  const page = await browser.newPage();
+  try {
+    await page.goto(url, { waitUntil: "domcontentloaded", timeout: 30000 });
+    await capture(page, shot);
+    const sections = await captureSections(page, pageName);
     const overflow = await hasOverflow(page);
     log("overflow: " + overflow);
-    await page.waitForTimeout(3000);
-    await browser.close();
-    return overflow;
+    return { overflow: overflow, shot: shot, sections: sections };
+  } finally {
+    await page.close();
+  }
+}
+
+export async function openLane(browser: Browser, path: string): Promise<LaneResult> {
+  const files: Record<string, string> = {
+    "/": "home.html",
+    "/about": "about.html",
+    "/events": "events.html",
+    "/join": "join.html",
+  };
+  const name = files[path] ?? "home.html";
+  const fileUrl = pathToFileURL(resolve("fixtures/demo", name)).href;
+  log("opening " + fileUrl);
+  const pageName = name.replace(".html", "");
+  return snap(browser, fileUrl, pageName + ".png", pageName);
+}
+
+export async function openRemote(browser: Browser, url: string): Promise<LaneResult> {
+  log("opening " + url);
+  const pageName = "ex-" + String(Date.now());
+  return snap(browser, url, pageName + ".png", pageName);
 }

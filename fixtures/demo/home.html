@@ -1,13 +1,86 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Fresp Demo</title>
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CampusHack — Home</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>Home</h1>
-    <p>This is the stadium</p>
-    <div class="break"></div>
-    <p><a href="about.html">Go to about</a></p>
+<nav>
+  <a href="/" class="logo">CampusHack</a>
+  <ul class="nav-links">
+    <li><a href="/" class="active">Home</a></li>
+    <li><a href="/about">About</a></li>
+    <li><a href="/events">Events</a></li>
+    <li><a href="/schedule">Schedule</a></li>
+    <li><a href="/projects">Projects</a></li>
+    <li><a href="/join">Join</a></li>
+  </ul>
+  <a href="/join" class="btn">Join Club</a>
+</nav>
+<header class="hero">
+  <span class="badge">Your Hackathon, Actually Good This Time</span>
+  <h1>Build the future. One hack at a time.</h1>
+  <p>Code, build, and ship cool projects together every Thursday at 5 PM in Room 402.</p>
+  <div class="hero-actions">
+    <a href="/join" class="btn">Join the Club</a>
+    <a href="https://discord.gg" class="btn btn-secondary" target="_blank">Discord Invite &rarr;</a>
+  </div>
+</header>
+<main class="container">
+  <div class="stats-grid">
+    <div class="stat-card">
+      <h3>12+</h3>
+      <p>Hackathons Hosted</p>
+    </div>
+    <div class="stat-card">
+      <h3>45+</h3>
+      <p>Projects Shipped</p>
+    </div>
+    <div class="stat-card">
+      <h3>$5k+</h3>
+      <p>Prizes Won</p>
+    </div>
+  </div>
+  <section>
+    <h2 class="section-title">Upcoming Hackathons</h2>
+    <p class="section-sub">Register for our weekly sprints and campus-wide coding events.</p>
+    <div class="grid-2">
+      <div class="card">
+        <h3>Fall Code Sprint</h3>
+        <p style="color: #a1a1aa; margin: 12px 0 20px;">Oct 24 • Student Union. 12-hour beginner-friendly hackathon with free food and mentorship.</p>
+        <a href="/events" class="btn btn-secondary">RSVP Now</a>
+      </div>
+      <div class="card">
+        <h3>AI Hackday</h3>
+        <p style="color: #a1a1aa; margin: 12px 0 20px;">Nov 8 • Room 402. Build generative AI tools and local LLM agents with our API partners.</p>
+        <a href="/events" class="btn btn-secondary">RSVP Now</a>
+      </div>
+    </div>
+  </section>
+  <section>
+    <h2 class="section-title">What We Build</h2>
+    <p class="section-sub">Explore exceptional tools built by our student members.</p>
+    <div class="grid-2">
+      <div class="card">
+        <h3>CampusSched AI</h3>
+        <p style="color: #a1a1aa; margin: 12px 0 20px;">An automated class registration planner built during our Spring Jam by three freshman members.</p>
+        <a href="/projects" class="btn btn-secondary">View on GitHub</a>
+      </div>
+      <div class="card">
+        <h3>DormDrop</h3>
+        <p style="color: #a1a1aa; margin: 12px 0 20px;">Peer-to-peer campus delivery network connecting students for quick textbook and snack runs.</p>
+        <a href="/projects" class="btn btn-secondary">View on GitHub</a>
+      </div>
+    </div>
+  </section>
+</main>
+<footer>
+  <div class="footer-content">
+    <p>CampusHack • student club • Meeting every Thursday at 5 PM in Room 402</p>
+    <p>Built with passion &amp; coffee</p>
+  </div>
+</footer>
 </body>
 </html>
