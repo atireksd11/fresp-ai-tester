@@ -2,22 +2,26 @@ Day 2 - Devlog 2
 Date - 21 August 2026
 Worked - 6 hours and 30 minutes
 
-Day 1 was overflow and two stub pages. Today I tried to make the rest of the loop real.
+Fresp is a local CLI. You run a command on your laptop. Real Chrome opens. It does not upload your site anywhere.
 
-The demo is a fake school club now: home, about, events, join. The heat sheet lists those paths so Chrome actually walks a sitemap. One Chromium for the whole run (new tab per URL, then close). Opening a new browser every page was dumb.
+Most “AI design” tools stare at a screenshot and vibe. Fresp asks Chrome a yes/no first. Today that question is still just overflow: is the page wider than the window? (scrollWidth vs clientWidth.) If home is 4000px wide on purpose, it fails. If about is normal, it passes. The pictures are proof. The number is the test.
 
-If you don’t pin example URLs, finder searches for 3 live homepages. We screenshot those first, write a steal sheet (learnings.json), then judge your pages against that. No API key = skip AI, overflow still runs. Empty issues is allowed so it stops inventing punctuation nits.
+Day 1 was that one check, two stub pages, and a single HTML file. Today I tried to make it feel like a product you would actually open.
 
-The planner used to spit 4 tiny sketches. Now it writes a full style.css and full HTML per route. Apply copies that onto fixtures/demo after a backup. It does not write into some stranger’s real repo.
+The demo is a fake school club now: home, about, events, join. Chrome walks all four. One Chromium for the whole run. I used to launch a new browser per page. That was embarrassing.
 
-The report is a small site, not one html file: Overview, Plan, Pages, Playbook, Examples, Compare. CSS is on disk so file:// still works. A hidden section on an example site used to timeout and kill the whole audit. We skip those now.
+If you don’t pin example URLs, it searches for 3 live homepages in your niche, screenshots those first, writes a steal sheet, then judges YOUR pages against that. No API key? Fine. Overflow still runs. The model is also allowed to say “no issues” so it stops roasting punctuation.
 
-Night (shorter, I have to wake up at 5:30): fresp.json so you can point Fresp at YOUR localhost. npx uses the folder you ran from, not the npm cache. No config = packaged demo, and the log says so. If 7373 is taken it tries the next ports. FRESP_SKIP_AI=1 skips taste/plan/finder. docs/SETUP.md is how to install Chromium and put a key in .env.
+The planner used to spit four tiny sketches. Useless. Now it writes a full style.css and full HTML per route. Apply pastes that onto the demo after a backup. It will not overwrite some stranger’s real repo. I don’t want a voter to click Apply and get slop in their actual project.
 
-Proof: GitHub atireksd11/fresp-ai-tester (commits in normal English). Chrome walked all four demo routes. Taste and plan ran when the key was there. Screenshots: docs/devlog/tmp (overview, plan, compare, pages, demo). SETUP + BRIEF + day journals are in docs/.
+The report is a little website: Overview, Plan, Pages, Playbook, Examples, Compare. You click around. CSS is a real file so it still looks okay as file://. One example site had a hidden section. Screenshot timed out for 30 seconds and killed the whole audit. That was a fun hour. We skip dead sections now.
 
-Git is 0.2.0. I still need to npm login before npx fresp-ai-tester@0.2.0 is live. Clone + npm run log works tonight.
+Night was shorter (dentist earlier, 5:30am tomorrow). Voters were going to hit three dumb traps: no setup doc, npx always auditing MY club demo, port 7373 already taken. So: fresp.json points at YOUR localhost. npx uses the folder you ran from. No config = demo, and the log says so. Busy port? Try the next ones. FRESP_SKIP_AI=1 if you only want facts. docs/SETUP.md is the “how do I run this” page.
 
-What’s not done: clip / overlap / contrast as measured facts (overflow is still the only hard check), apply to a real app, publishing 0.2.0.
+Proof if you want to click instead of trust me: github.com/atireksd11/fresp-ai-tester (commits in normal English), docs/SETUP.md + BRIEF.md, screenshots in docs/devlog/tmp (overview, plan, compare, the demo). Chrome did walk all four routes. Taste ran when the key was there.
 
-Next session: clip fact in Chrome, same shape as overflow. Plant a clip bug on about. Then the rest of the harden list (report history, example timeouts).
+Git says 0.2.0. I still have to npm login before npx fresp-ai-tester@0.2.0 is real. Tonight: clone + npm run log.
+
+What’s not done: clip / overlap / contrast (overflow is still the only measured fact, I know), apply to a real app, publishing.
+
+Next: clip. Same idea as overflow. Text smashed inside a box should fail, even if the page doesn’t scroll sideways.
