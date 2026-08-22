@@ -2,26 +2,26 @@ Day 2 - Devlog 2
 Date - 21 August 2026
 Worked - 6 hours and 30 minutes
 
-Fresp is a local CLI. You run a command on your laptop. Real Chrome opens. It does not upload your site anywhere.
+If you missed day 1: Fresp is a command I run on my laptop. Playwright opens real Chrome, I measure something on the live page, files land in the repo. Not a website you log into.
 
-Most “AI design” tools stare at a screenshot and vibe. Fresp asks Chrome a yes/no first. Today that question is still just overflow: is the page wider than the window? (scrollWidth vs clientWidth.) If home is 4000px wide on purpose, it fails. If about is normal, it passes. The pictures are proof. The number is the test.
+Today I started from that overflow-only toy (two html pages, one report.html) and tried to finish the loop I wrote down in VISION.md.
 
-Day 1 was that one check, two stub pages, and a single HTML file. Today I tried to make it feel like a product you would actually open.
+First I rebuilt the demo into a fake club so Chrome has more than home/about. heatSheet.paths is now /, /about, /events, /join. There’s extra html in fixtures I didn’t wire yet (projects, schedule) because I didn’t want to fake a sitemap I don’t walk.
 
-The demo is a fake school club now: home, about, events, join. Chrome walks all four. One Chromium for the whole run. I used to launch a new browser per page. That was embarrassing.
+Then I noticed we launch Chromium per page. That’s slow and looks stupid. runAudit now launches once, newPage per URL, page.close(), browser.close() in finally.
 
-If you don’t pin example URLs, it searches for 3 live homepages in your niche, screenshots those first, writes a steal sheet, then judges YOUR pages against that. No API key? Fine. Overflow still runs. The model is also allowed to say “no issues” so it stops roasting punctuation.
+After that I wired taste for real. I used to judge my pages first then look at examples, which is backwards. Order now: find 3 urls (or skip if no key), screenshot those, steal sheet into logs/learnings.json, then judge mine with that json + the first example png. I also let issues be []. The model was inventing “generic template” on pages that were already a club site.
 
-The planner used to spit four tiny sketches. Useless. Now it writes a full style.css and full HTML per route. Apply pastes that onto the demo after a backup. It will not overwrite some stranger’s real repo. I don’t want a voter to click Apply and get slop in their actual project.
+Planner was 4 tiny html sketches. I changed the type to RebuildPlan: one full style.css and pages[].html as complete documents. apply.ts copies that onto fixtures/demo after dumping a backup in logs/backups. I am not writing into some other project yet on purpose. If the generated css is ugly, at least it only hits the fixture.
 
-The report is a little website: Overview, Plan, Pages, Playbook, Examples, Compare. You click around. CSS is a real file so it still looks okay as file://. One example site had a hidden section. Screenshot timed out for 30 seconds and killed the whole audit. That was a fun hour. We skip dead sections now.
+Report became six html files in logs/report/ with a shared report.css. file:// was breaking when I tried a CDN so the css is just a file. I spent way too long on the logo. The png I copied still had a black square. Then 1.png/2.png were transparent but padded so 32px looked like 12px. Cropped nav.png. Then 44px ate the pill. Landed on 28px. Don’t look at the git history for that part.
 
-Night was shorter (dentist earlier, 5:30am tomorrow). Voters were going to hit three dumb traps: no setup doc, npx always auditing MY club demo, port 7373 already taken. So: fresp.json points at YOUR localhost. npx uses the folder you ran from. No config = demo, and the log says so. Busy port? Try the next ones. FRESP_SKIP_AI=1 if you only want facts. docs/SETUP.md is the “how do I run this” page.
+Around then an example site had a hidden <section>. locator.screenshot waited 30s and the whole npm run log died. capture.ts now skips not-visible and 4s timeout. Example loop is try/catch so one url can’t kill the run.
 
-Proof if you want to click instead of trust me: github.com/atireksd11/fresp-ai-tester (commits in normal English), docs/SETUP.md + BRIEF.md, screenshots in docs/devlog/tmp (overview, plan, compare, the demo). Chrome did walk all four routes. Taste ran when the key was there.
+Dentist in the afternoon. Came back at 9:30, have to wake up at 5:30, so I only did the “a stranger will hate this” stuff. bin/fresp.mjs had cwd set to the package folder, so npx always audited MY demo. That’s load.ts + fresp.json now. No file = demo and we log it. Server used to print “already on 7373” and keep serving the OLD report. Now it binds 7374 etc. Apply fetch is /apply so it follows the port. FRESP_SKIP_AI actually does something. Wrote SETUP.md because I was tired of explaining the key in chat.
 
-Git says 0.2.0. I still have to npm login before npx fresp-ai-tester@0.2.0 is real. Tonight: clone + npm run log.
+Overflow is still the only fact. Clip is tomorrow. I keep saying that.
 
-What’s not done: clip / overlap / contrast (overflow is still the only measured fact, I know), apply to a real app, publishing.
+Shots from the report and the demo are in docs/devlog/tmp. Repo is atireksd11/fresp-ai-tester. package.json says 0.2.0, I haven’t npm published yet because login is dead on this machine.
 
-Next: clip. Same idea as overflow. Text smashed inside a box should fail, even if the page doesn’t scroll sideways.
+Next session: hasClip in facts.ts, same page.evaluate pattern, plant overflow:hidden + long text on about.
