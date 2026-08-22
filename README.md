@@ -142,7 +142,9 @@ Taste is a vision model + a markdown bible. Not a vector database.
 | [VISION.md](docs/VISION.md) | Product |
 | [ARCHITECTURE.md](docs/ARCHITECTURE.md) | Rooms and the run loop |
 | [ENGINEERING.md](docs/ENGINEERING.md) | How the pieces are wired |
+| [SETUP.md](docs/SETUP.md) | Install, API key, fresp.json, npx vs clone |
 | [taste.md](docs/taste.md) | Judgement bible |
+| [BRIEF.md](docs/BRIEF.md) | What it actually does right now |
 | [REPORT.md](docs/REPORT.md) | Report IA |
 | [PLAN-AGENT.md](docs/PLAN-AGENT.md) | Rebuild plan shape |
 | [FINDER.md](docs/FINDER.md) | Example search |

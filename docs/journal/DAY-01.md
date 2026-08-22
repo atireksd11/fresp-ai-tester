@@ -1,32 +1,13 @@
 # Day 1 — 20 Aug 2026
 
-Started from an empty repo. Goal: local CLI that opens a real browser,
-measures a layout fact, writes files. Not a hosted website.
+Empty folder this morning. I wanted a thing you run on your computer, not another website you log into. Open real Chrome, measure something real, leave files. That was the whole day.
 
-## Setup
-- Folders: src/core, drivers, vision, state, logger, report, types, config
-- package.json (ESM), tsconfig.json, .gitignore
-- docs: ARCHITECTURE, VISION, ENGINEERING, taste.md
-- Demo pages in fixtures/demo (home broken with 4000px bar, about clean)
-- GitHub: atireksd11/fresp-ai-tester ( public )
-- npm: fresp-ai-tester@0.1.0 public. Stranger npx failed because tsx was
-  only a devDependency. 0.1.1 not published yet.
+I made the rooms first so I would not dump everything in one file: core, drivers, vision, state, logger, report, config. package.json ESM. Demo is two html pages. Home has a 4000px red bar on purpose. About is fine. That way I can see fail and pass in the same run.
 
-## Code that runs
-- Logger: timestamp to terminal + logs/run.txt
-- State: PageAudit scorecard, stack, last-run.json
-- Config: heatSheet baseUrl + paths
-- Core: loop paths, save pass/fail from overflow
-- Driver: Playwright Chromium, file:// demo HTML, 3s so you can see it
-- Vision: full-page PNG in fixtures/baselines, hasOverflow
-  (scrollWidth > clientWidth inside page.evaluate)
-- Report: logs/report.html
-- bin/fresp.mjs so npx fresp works inside this repo (path-with-spaces fix)
+Playwright opens the files as file://. Vision asks Chrome if scrollWidth is bigger than clientWidth. That is overflow. Not the AI looking at a png and guessing. Screenshots go in fixtures/baselines. Logger stamps the terminal and logs/run.txt. State writes last-run.json. Report was one logs/report.html.
 
-## Proof
-Home: overflow true, notes overflow, passed false.
-About: overflow false, notes ok, passed true.
-Command: npm run log (or npx fresp in this folder).
+Pushed atireksd11/fresp-ai-tester. Published fresp-ai-tester on npm. First npx from another folder died because tsx was only a devDependency. Annoying. That is a tomorrow publish problem.
 
-## Not done
-AI taste API, extra facts, npm 0.1.1, VS Code extension, RAG.
+Proof I actually have: home overflow true / fail. about ok / pass. `npm run log` in this repo.
+
+I did not do taste, clip, overlap, or any of the RAG ideas people keep suggesting. I do not want a vector database. I want the next fact in Chrome.
