@@ -1,5 +1,6 @@
 import { writeFileSync } from "node:fs";
 import { mkdirSync } from "node:fs";
+import { skipAi } from "../config/load.js";
 
 function pickUrls(text: string): string[] {
   const found = text.match(/https:\/\/[^\s"'<>\]]+/g) ?? [];
@@ -24,6 +25,9 @@ function pickUrls(text: string): string[] {
 
 export async function findExamples(product: string, goal: string): Promise<string[]> {
   const key = process.env.FRESP_API_KEY;
+  if (skipAi()) {
+    return [];
+  }
   if (!key) {
     return [];
   }

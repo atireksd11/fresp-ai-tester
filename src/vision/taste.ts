@@ -1,4 +1,5 @@
 import { existsSync, readFileSync } from "node:fs";
+import { skipAi } from "../config/load.js";
 import type {
   DesignMove,
   PageToAdd,
@@ -165,6 +166,9 @@ export async function judgePage(
     refShotPath: string
   ): Promise<TasteResult> {
   const key = process.env.FRESP_API_KEY;
+  if (skipAi()) {
+    return skipped("FRESP_SKIP_AI");
+  }
   if (!key) {
     return skipped("no API key");
   }

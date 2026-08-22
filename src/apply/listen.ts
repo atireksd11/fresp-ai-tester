@@ -1,12 +1,19 @@
-import { createServer } from "node:http";
+import { createServer, type Server } from "node:http";
 import { existsSync, readFileSync, statSync } from "node:fs";
 import { extname, join, normalize, resolve } from "node:path";
 import { exec } from "node:child_process";
 import { applyPlan } from "./apply.js";
+import { packageRoot } from "../config/load.js";
 
-const port = 7373;
-export const demoUrl = "http://127.0.0.1:" + String(port) + "/fixtures/demo/home.html";
-export const reportUrl = "http://127.0.0.1:" + String(port) + "/logs/report/index.html";
+let bound = 7373;
+
+export function reportUrl(): string {
+  return "http://127.0.0.1:" + String(bound) + "/logs/report/index.html";
+}
+
+export function demoUrl(): string {
+  return "http://127.0.0.1:" + String(bound) + "/fixtures/demo/home.html";
+}
 
 function mime(file: string): string {
   const ext = extname(file);
@@ -28,8 +35,7 @@ function mime(file: string): string {
   return "application/octet-stream";
 }
 
-function allowed(abs: string): boolean {
-  const root = resolve(".");
+function under(root: string, abs: string): boolean {
   const rel = abs.slice(root.length).replace(/\\/g, "/").replace(/^\//, "");
   return (
     rel === "logs/report" ||
@@ -39,12 +45,29 @@ function allowed(abs: string): boolean {
   );
 }
 
-export function openDemo(): void {
-  exec('cmd /c start "" "' + demoUrl + '"');
+function allowed(abs: string): boolean {
+  return under(resolve("."), abs) || under(packageRoot, abs);
 }
 
-export function startReportServer(): void {
-  const server = createServer(function (req, res) {
+function pickFile(urlPath: string): string | null {
+  const rel = decodeURIComponent(urlPath).replace(/^\//, "");
+  const cwdHit = resolve(normalize(join(".", rel)));
+  const pkgHit = resolve(normalize(join(packageRoot, rel)));
+  if (existsSync(cwdHit) && allowed(cwdHit)) {
+    return cwdHit;
+  }
+  if (existsSync(pkgHit) && allowed(pkgHit)) {
+    return pkgHit;
+  }
+  return null;
+}
+
+export function openDemo(): void {
+  exec('cmd /c start "" "' + demoUrl() + '"');
+}
+
+function attach(server: Server): void {
+  server.on("request", function (req, res) {
     res.setHeader("Access-Control-Allow-Origin", "*");
     res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
     if (req.method === "OPTIONS") {
@@ -72,13 +95,8 @@ export function startReportServer(): void {
     if (url === "/") {
       url = "/logs/report/index.html";
     }
-    const abs = resolve(normalize(join(".", decodeURIComponent(url))));
-    if (!abs.startsWith(resolve(".")) || !allowed(abs) || !existsSync(abs)) {
-      res.writeHead(404);
-      res.end("nope");
-      return;
-    }
-    if (statSync(abs).isDirectory()) {
+    const abs = pickFile(url);
+    if (!abs || !existsSync(abs) || statSync(abs).isDirectory()) {
       res.writeHead(404);
       res.end("nope");
       return;
@@ -86,17 +104,28 @@ export function startReportServer(): void {
     res.writeHead(200, { "Content-Type": mime(abs) });
     res.end(readFileSync(abs));
   });
+}
+
+function listenAt(port: number, attempt: number): void {
+  const server = createServer();
+  attach(server);
   server.on("error", function (err: NodeJS.ErrnoException) {
-    if (err.code === "EADDRINUSE") {
-      console.log("already on 7373 — " + reportUrl);
+    if (err.code === "EADDRINUSE" && attempt < 10) {
+      listenAt(port + 1, attempt + 1);
       return;
     }
     throw err;
   });
   server.listen(port, function () {
-    console.log("report " + reportUrl);
-    console.log("demo " + demoUrl);
+    bound = port;
+    console.log("report " + reportUrl());
+    console.log("demo " + demoUrl());
   });
+}
+
+export function startReportServer(): void {
+  const start = Number(process.env.FRESP_PORT) || 7373;
+  listenAt(start, 0);
 }
 
 const argv1 = process.argv[1] ? process.argv[1].replace(/\\/g, "/") : "";

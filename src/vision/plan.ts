@@ -3,6 +3,7 @@ import { join } from "node:path";
 import type { PageAudit } from "../types/audit.js";
 import type { PlanPage, PlanSection, RebuildPlan } from "../types/plan.js";
 import { planPrompt } from "./prompts.js";
+import { skipAi } from "../config/load.js";
 
 function skipped(reason: string): RebuildPlan {
   return {
@@ -147,6 +148,9 @@ export async function buildPlan(
   examples: PageAudit[]
 ): Promise<RebuildPlan> {
   const key = process.env.FRESP_API_KEY;
+  if (skipAi()) {
+    return skipped("FRESP_SKIP_AI");
+  }
   if (!key) {
     return skipped("no API key");
   }

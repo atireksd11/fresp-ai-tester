@@ -14,6 +14,6 @@ const tsxRoot = dirname(require.resolve("tsx/package.json"));
 const tsxCli = join(tsxRoot, "dist", "cli.mjs");
 
 spawnSync(process.execPath, [tsxCli, run], {
-  cwd: root,
+  cwd: process.cwd(),
   stdio: "inherit",
 });

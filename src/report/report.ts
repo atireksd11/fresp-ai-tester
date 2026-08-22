@@ -403,7 +403,7 @@ function planPage(plan: RebuildPlan): string {
     (plan.css ? codeDlg("css-shared", "View style.css", plan.css) : "") +
     '<button type="button" class="fr-cta" id="fr-apply">Apply to demo</button>' +
     '<p class="fr-muted" id="fr-apply-msg">Writes fixtures/demo (backup in logs/backups/) and opens it in the browser.</p>' +
-    "<script>document.getElementById('fr-apply').onclick=function(){var b=document.getElementById('fr-apply');var m=document.getElementById('fr-apply-msg');m.textContent='applying…';fetch('http://127.0.0.1:7373/apply',{method:'POST'}).then(function(r){return r.text()}).then(function(t){m.textContent=t;b.style.display='none'}).catch(function(){m.textContent='Keep this terminal open after npm run log or npm run report.'})}</script>" +
+    "<script>document.getElementById('fr-apply').onclick=function(){var b=document.getElementById('fr-apply');var m=document.getElementById('fr-apply-msg');m.textContent='applying…';fetch('/apply',{method:'POST'}).then(function(r){return r.text()}).then(function(t){m.textContent=t;b.style.display='none'}).catch(function(){m.textContent='Keep this terminal open after npm run log or npm run report.'})}</script>" +
     "</article>" +
     cards;
   return shell("Rebuild", mode(plan), body, "plan.html");
@@ -428,7 +428,15 @@ export function writeReport(results: PageAudit[], plan: RebuildPlan): void {
         "logs/report/yours.html",
         shell("Pages", String(failN(yours)) + " failed of " + String(yours.length), rows, "yours.html")
     );
+    const skipNote = yours.some(function (r) {
+        return r.taste.skipped;
+    })
+        ? '<p class="fr-muted">Taste skipped — ' +
+          esc(yours.find(function (r) { return r.taste.skipped; })?.taste.reason || "no API") +
+          ". Facts and screenshots still ran.</p>"
+        : "";
     const indexBody =
+        skipNote +
         '<div class="fr-stats">' +
         '<div class="fr-stat"><b>' +
         String(failN(yours)) +

@@ -25,7 +25,17 @@ async function snap(browser: Browser, url: string, shot: string, pageName: strin
   }
 }
 
-export async function openLane(browser: Browser, path: string): Promise<LaneResult> {
+export async function openLane(
+  browser: Browser,
+  path: string,
+  usingDemo: boolean,
+  baseUrl: string,
+  demoRoot: string
+): Promise<LaneResult> {
+  if (!usingDemo) {
+    const url = baseUrl.replace(/\/$/, "") + path;
+    return openRemote(browser, url);
+  }
   const files: Record<string, string> = {
     "/": "home.html",
     "/about": "about.html",
@@ -33,7 +43,7 @@ export async function openLane(browser: Browser, path: string): Promise<LaneResu
     "/join": "join.html",
   };
   const name = files[path] ?? "home.html";
-  const fileUrl = pathToFileURL(resolve("fixtures/demo", name)).href;
+  const fileUrl = pathToFileURL(resolve(demoRoot, "fixtures/demo", name)).href;
   log("opening " + fileUrl);
   const pageName = name.replace(".html", "");
   return snap(browser, fileUrl, pageName + ".png", pageName);

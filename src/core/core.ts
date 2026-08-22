@@ -1,7 +1,7 @@
 import { chromium } from "playwright";
 import { log } from "../logger/logger.js";
 import { saveResult, getResult, writeRun, clearRun } from "../state/state.js";
-import { heatSheet } from "../config/heatSheet.js";
+import { loadSheet, packageRoot, skipAi } from "../config/load.js";
 import { openLane } from "../drivers/driver.js";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
@@ -16,12 +16,16 @@ import { saveLearnings } from "../learn/learnings.js";
 
 export async function runAudit(): Promise<void> {
   loadEnv();
-  clearRun();
-  let exampleUrls = heatSheet.exampleUrls;
-  if (exampleUrls.length === 0) {
-    exampleUrls = await findExamples(heatSheet.product, heatSheet.goal);
-  log("examples found: " + exampleUrls.join(" "));
+  if (skipAi()) {
+    log("FRESP_SKIP_AI — facts and shots only");
   }
+  clearRun();
+  const sheet = loadSheet();
+  let exampleUrls = sheet.exampleUrls;
+  if (exampleUrls.length === 0 && !skipAi()) {
+    exampleUrls = await findExamples(sheet.product, sheet.goal);
+  }
+  log("examples found: " + exampleUrls.join(" "));
   const browser = await chromium.launch({ headless: false });
   try {
   for (const url of exampleUrls) {
@@ -30,8 +34,8 @@ export async function runAudit(): Promise<void> {
       const facts = JSON.stringify({ overflow: lane.overflow });
       const taste = await judgePage(
         url,
-        heatSheet.product,
-        heatSheet.goal,
+        sheet.product,
+        sheet.goal,
         facts,
         join("fixtures", "baselines", lane.shot),
         lane.sections,
@@ -56,21 +60,27 @@ export async function runAudit(): Promise<void> {
   const examples = getAll().filter(function (r) {
     return r.kind === "example";
   });
-  const learnings = saveLearnings(heatSheet.product, heatSheet.goal, examples);
+  const learnings = saveLearnings(sheet.product, sheet.goal, examples);
   log("learnings: logs/learnings.json");
   const refShot =
     examples[0] && examples[0].shot
       ? join("fixtures", "baselines", examples[0].shot)
       : "";
-  for (const path of heatSheet.paths) {
-    const lane = await openLane(browser, path);
+  for (const path of sheet.paths) {
+    const lane = await openLane(
+      browser,
+      path,
+      sheet.usingDemo,
+      sheet.baseUrl,
+      packageRoot
+    );
     const overflow = lane.overflow;
     const shot = lane.shot;
     const facts = JSON.stringify({ overflow: overflow });
     const taste = await judgePage(
-      heatSheet.baseUrl + path,
-      heatSheet.product,
-      heatSheet.goal,
+      sheet.baseUrl + path,
+      sheet.product,
+      sheet.goal,
       facts,
       join("fixtures", "baselines", shot),
       lane.sections,
@@ -79,7 +89,7 @@ export async function runAudit(): Promise<void> {
       existsSync(refShot) ? refShot : ""
     );
     saveResult({
-      url: heatSheet.baseUrl + path,
+      url: sheet.baseUrl + path,
       passed: overflow === false,
       notes: overflow === true ? "overflow" : "ok",
       shot: shot,
@@ -95,11 +105,10 @@ export async function runAudit(): Promise<void> {
   const yours = all.filter(function (r) {
     return r.kind !== "example";
   });
-  const plan = await buildPlan(heatSheet.product, heatSheet.goal, yours, examples);
+  const plan = await buildPlan(sheet.product, sheet.goal, yours, examples);
   savePlan(plan);
   log("plan skipped: " + String(plan.skipped) + " " + plan.reason);
   writeRun();
-  log("report: http://127.0.0.1:7373/logs/report/index.html");
   } finally {
     await browser.close();
   }

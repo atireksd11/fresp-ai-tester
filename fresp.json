@@ -1,0 +1,8 @@
+{
+    "name": "CampusHack demo",
+    "demo": true,
+    "product": "school club",
+    "goal": "hackathon",
+    "paths": ["/", "/about", "/events", "/join"],
+    "exampleUrls": []
+}
